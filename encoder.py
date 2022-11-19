@@ -1,7 +1,10 @@
 import argparse
 
 import numpy as np
-from scipy.misc import imread, imresize, imsave
+# from scipy.misc import imread, imresize, imsave
+from scipy.misc import imresize, imsave
+
+from imageio import imread
 
 import torch
 from torch.autograd import Variable
@@ -18,14 +21,15 @@ parser.add_argument(
     '--iterations', type=int, default=16, help='unroll iterations')
 args = parser.parse_args()
 
-image = imread(args.input, mode='RGB')
+# image = imread(args.input, mode='RGB')
+image = imread(args.input, pilmode='RGB')
 image = torch.from_numpy(
     np.expand_dims(
         np.transpose(image.astype(np.float32) / 255.0, (2, 0, 1)), 0))
 batch_size, input_channels, height, width = image.size()
 assert height % 32 == 0 and width % 32 == 0
 
-image = Variable(image, volatile=True)
+image = Variable(image)
 
 import network
 
@@ -43,41 +47,41 @@ binarizer.load_state_dict(
 decoder.load_state_dict(torch.load(args.model.replace('encoder', 'decoder')))
 
 encoder_h_1 = (Variable(
-    torch.zeros(batch_size, 256, height // 4, width // 4), volatile=True),
+    torch.zeros(batch_size, 256, height // 4, width // 4), ),
                Variable(
                    torch.zeros(batch_size, 256, height // 4, width // 4),
-                   volatile=True))
+                   ))
 encoder_h_2 = (Variable(
-    torch.zeros(batch_size, 512, height // 8, width // 8), volatile=True),
+    torch.zeros(batch_size, 512, height // 8, width // 8), ),
                Variable(
                    torch.zeros(batch_size, 512, height // 8, width // 8),
-                   volatile=True))
+                   ))
 encoder_h_3 = (Variable(
-    torch.zeros(batch_size, 512, height // 16, width // 16), volatile=True),
+    torch.zeros(batch_size, 512, height // 16, width // 16), ),
                Variable(
                    torch.zeros(batch_size, 512, height // 16, width // 16),
-                   volatile=True))
+                   ))
 
 decoder_h_1 = (Variable(
-    torch.zeros(batch_size, 512, height // 16, width // 16), volatile=True),
+    torch.zeros(batch_size, 512, height // 16, width // 16), ),
                Variable(
                    torch.zeros(batch_size, 512, height // 16, width // 16),
-                   volatile=True))
+                   ))
 decoder_h_2 = (Variable(
-    torch.zeros(batch_size, 512, height // 8, width // 8), volatile=True),
+    torch.zeros(batch_size, 512, height // 8, width // 8), ),
                Variable(
                    torch.zeros(batch_size, 512, height // 8, width // 8),
-                   volatile=True))
+                   ))
 decoder_h_3 = (Variable(
-    torch.zeros(batch_size, 256, height // 4, width // 4), volatile=True),
+    torch.zeros(batch_size, 256, height // 4, width // 4), ),
                Variable(
                    torch.zeros(batch_size, 256, height // 4, width // 4),
-                   volatile=True))
+                   ))
 decoder_h_4 = (Variable(
-    torch.zeros(batch_size, 128, height // 2, width // 2), volatile=True),
+    torch.zeros(batch_size, 128, height // 2, width // 2), ),
                Variable(
                    torch.zeros(batch_size, 128, height // 2, width // 2),
-                   volatile=True))
+                   ))
 
 if args.cuda:
     encoder = encoder.cuda()

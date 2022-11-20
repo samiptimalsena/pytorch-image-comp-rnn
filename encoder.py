@@ -5,6 +5,7 @@ import numpy as np
 from scipy.misc import imresize, imsave
 
 from imageio import imread
+from PIL import Image
 
 import torch
 from torch.autograd import Variable
@@ -22,7 +23,8 @@ parser.add_argument(
 args = parser.parse_args()
 
 # image = imread(args.input, mode='RGB')
-image = imread(args.input, pilmode='RGB')
+image = imread(args.input)
+image = np.array(Image.fromarray(image).resize((512, 768)))
 image = torch.from_numpy(
     np.expand_dims(
         np.transpose(image.astype(np.float32) / 255.0, (2, 0, 1)), 0))
